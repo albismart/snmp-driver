@@ -1,0 +1,34 @@
+{
+    "name": "albismart/snmp-driver",
+    "description": "A SNMP driver for Laravel.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "snmp driver",
+        "driver",
+        "albismart",
+        "laravel"
+    ],
+    "authors": [
+        {
+            "name": "Erblin Bobaj",
+            "email": "e.bobaj@albismart.com"
+        }
+    ],
+    "require": {
+        "php": "^7.2.5",
+        "laravel/framework": "~5.8.0|^6.0|^7.0",
+    },
+    "autoload": {
+        "psr-4": {
+            "Albismart\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                // "Albismart\\SnmpServiceProvider"
+            ]
+        }
+    },
+}
