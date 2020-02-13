@@ -1,13 +1,13 @@
 ![alt text](http://cdn.albismart.cloud/logo.svg "Logo")
 
-Albismart snmp-driver is an opensource project, MIT-licensed. It is maintained by the core developers of AlbiSmart company. Open to any contributors willing to give their very own to the Internet Provisioning community.
+Albismart snmp-driver is an opensource project, MIT-licensed. It is maintained by the core developers of Albismart company. Open to any contributors willing to give to the Internet Providing community.
 
 ## Introduction
 The snmp-driver as we call it, is a Laravel package adapted solution, designed to provide eloquent experience while using Laravel ecosystem and PHP.
 
 ### Installation
 
-In order to get the API running and ready, setup a linux distro with the below servicecs
+In your laravel project directory, install the package using composer:
 
 ```composer require albismart/snmp-driver```
 
