@@ -2,7 +2,7 @@
 
 namespace Albismart\Versions;
 
-class V1
+class V2
 {
     public $host;
     public $credentials;
@@ -20,19 +20,19 @@ class V1
         $retries = $config['retries'];
 
         if ($getMethod == 'get') {
-            return snmpget($this->host, $credentials, $oid, $timeout, $retries);
+            return snmp2_get($this->host, $credentials, $oid, $timeout, $retries);
         }
         if ($getMethod == 'walk') {
-            return snmpwalk($this->host, $credentials, $oid, $timeout, $retries);
+            return snmp2_walk($this->host, $credentials, $oid, $timeout, $retries);
         }
         if ($getMethod == 'realwalk') {
-            return snmprealwalk($this->host, $credentials, $oid, $timeout, $retries);
+            return snmp2_real_walk($this->host, $credentials, $oid, $timeout, $retries);
         }
     }
 
     public function write($oid, $dataType, $value, $config = [])
     {
         $credentials = is_array($this->credentials) ? $this->credentials['write'] : $this->credentials;
-        return snmpset($this->host, $credentials, $oid, $dataType, $value, $config['timeout'], $config['retries']);
+        return snmp2_set($this->host, $credentials, $oid, $dataType, $value, $config['timeout'], $config['retries']);
     }
 }

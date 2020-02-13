@@ -3,11 +3,13 @@
 namespace Albismart;
 
 use Albismart\Versions\V1;
+use Albismart\Versions\V2;
+use Albismart\Versions\V3;
 
 class SnmpDriver
 {
     public $host;
-    public $community;
+    public $credentials;
 
     protected $adapter;
 
@@ -21,16 +23,16 @@ class SnmpDriver
     /**
      *
      * @param string $host host to connect to the device.
-     * @param string|array $community comunity password.
+     * @param string|array $credentials comunity password.
      * @param array  $config
      */
-    public function __construct($host, $community, $config = [])
+    public function __construct($host, $credentials, $config = [])
     {
         $this->host = $host;
-        if (is_array($community) && (!array_key_exists('read', $community) || !array_key_exists('write', $community))) {
-            throw new \Exception('community is not set.');
+        if (is_array($credentials) && (!array_key_exists('read', $credentials) || !array_key_exists('write', $credentials))) {
+            throw new \Exception('credentials are not set.');
         }
-        $this->community = $community;
+        $this->credentials = $credentials;
         $this->config = array_merge($this->config, $config);
         $this->setVersion($this->config['version']);
     }
@@ -94,13 +96,13 @@ class SnmpDriver
     public function setVersion($version)
     {
         if ($version == 'v1') {
-            $this->adapter = new V1($this->host, $this->community);
+            $this->adapter = new V1($this->host, $this->credentials);
         }
         if ($version == 'v2') {
-
+            $this->adapter = new V2($this->host, $this->credentials);
         }
         if ($version == 'v3') {
-
+            $this->adapter = new V3($this->host, $this->credentials);
         }
     }
 }
