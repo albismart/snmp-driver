@@ -11,11 +11,12 @@ In your laravel project directory, install the package using composer:
 
 ```composer require albismart/snmp-driver```
 
-### Our initial todo list (we may extend or eleminate items, depending on the project flow)
+### Features
 
 - [ ] SNMP Read
 - [ ] SNMP Write
 - [ ] SNMP Version selection
+- [ ] Nested Readings
 
 ## Contributing
 
