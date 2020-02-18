@@ -11,12 +11,23 @@ return [
 		'priv_protocol' => 'AES',
 	],
 
+    "cmtses" => [
+        // example
+        "cmts-1" => [
+            "host" => "localhost",
+            "version" => "v1",
+            "credentials" => [
+                "read" => "admin",
+                "write" => "admin",
+            ]
+        ]
+    ],
     /*
     |--------------------------------------------------------------------------
-    | SNMP mibs
+    | SNMP aliases
     |--------------------------------------------------------------------------
     |
     */
-    'mibs' => [
+    'aliases' => [
     ]
 ];

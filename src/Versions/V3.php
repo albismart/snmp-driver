@@ -32,9 +32,9 @@ class V3
         return $this->call_func($method, $config, $oid, $timeout, $retries);
     }
 
-    protected function call_func($function, $config,...$args)
+    protected function call_func($function, $config, ...$args)
     {
-        return call_user_func($function, 
+        return call_user_func($function,
             $this->host,
             $this->credentials['sec_name'],
             $this->credentials['sec_level'] ?? $config['v3']['sec_level'],

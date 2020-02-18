@@ -17,5 +17,6 @@ class SnmpServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../config/snmp.php' => config_path('snmp.php')
         ]);
+        Connection::useAliases(app('config')->get('cnmp.aliases'));
     }
 }

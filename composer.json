@@ -4,6 +4,7 @@
     "type": "library",
     "license": "MIT",
     "keywords": [
+        "snmp"
         "snmp driver",
         "driver",
         "albismart",
