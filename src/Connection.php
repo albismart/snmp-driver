@@ -133,7 +133,7 @@ class Connection
         // future plan make $index support array.
     }
 
-    public static function useAliases($aliases)
+    public static function useAliases(array $aliases)
     {
         static::$aliases = array_merge_recursive(static::$aliases, $aliases);
     }
