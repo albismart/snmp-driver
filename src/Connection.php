@@ -5,6 +5,7 @@ namespace Albismart;
 use Albismart\Versions\V1;
 use Albismart\Versions\V2;
 use Albismart\Versions\V3;
+use Illuminate\Support\Arr;
 
 class Connection
 {
@@ -121,15 +122,35 @@ class Connection
      */
     public function findAlias($oid)
     {
-        return $oid;
+        if(!preg_match('/[a-zA-Z]/', $oid)) return $oid;
 
         $index = null;
         if (preg_match('/\{(.+)\}/', $oid, $matches)) {
             $index = $matches[1];
             $oid = str_replace($matches[0], '', $oid);
         }
-        // find aliases from snmp config.
-        // return flat array with dot notation.
+
+        $aliases = config('snmp.aliases');
+        $alias = Arr::get($aliases, $oid);
+
+        if($alias == null){
+            throw new \Exception('Alias is not found.');
+        }
+
+        if(preg_match('/\[]/', $alias, $matches)){
+            $alias = str_replace($matches[0], '', $alias);
+            $this->config['getMethod'] = 'walk';
+
+        } else if(preg_match('/\[R]/', $alias, $matches)){
+            $alias = str_replace($matches[0], '', $alias);
+            $this->config['getMethod'] = 'realwalk';
+        }
+
+        if($index){
+            return preg_replace('/\{(.+)\}/', $index, $alias);
+        }
+        return preg_replace('/\.{(.+)\}/', $index, $alias);
+
         // future plan make $index support array.
     }
 
