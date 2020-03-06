@@ -6,8 +6,9 @@ use Albismart\Versions\V1;
 use Albismart\Versions\V2;
 use Albismart\Versions\V3;
 use Illuminate\Support\Arr;
+use Albismart\Reader;
 
-class Connection
+class Connection implements Reader
 {
     public $host;
     public $credentials;
@@ -17,10 +18,11 @@ class Connection
     public $config = [
         'version' => 'v1',
         'readValueMethod' => SNMP_VALUE_PLAIN,
-        'getMethod' => 'get', // get, walk, realwalk
     ];
 
     protected static $aliases = [];
+
+    protected static $fake = false;
 
     /**
      *
@@ -40,13 +42,33 @@ class Connection
         $this->setVersion($this->config['version']);
     }
 
+    public function read($oid)
+    {
+        return $this->call($oid);
+    }
+
+    public function get($oid)
+    {
+        return $this->call($oid, 'get');
+    }
+
+    public function walk($oid)
+    {
+        return $this->call($oid, 'walk');
+    }
+
+    public function realwalk($oid)
+    {
+        return $this->call($oid, 'realwalk');
+    }
+
     /**
      * @example $this->read(['oid or alias', 'oid or alias']);
      * @example  $this->read('oid or alias');
      * @param  string|array oid or alias
      * @return mixed
      */
-    public function read($oid)
+    public function call($oid, $method = null)
     {
         if (is_array($oid)) {
             $response = [];
@@ -56,22 +78,36 @@ class Connection
             return $response;
         }
         // find alias and replace
-        $oid = $this->findAlias($oid);
+        [$oid, $m] = $this->findAlias($oid);
+
+        $method = $method ?: $m;
 
         snmp_set_valueretrieval($this->config['readValueMethod']);
 
         if (is_string($oid)) {
-            return $this->adapter->read($oid, $this->config);
+            return $this->tryCall($method, $oid, $this->config);
         }
 
         if (is_array($oid)) {
             $responses = [];
             foreach ($oid as $key => $i) {
-                $responses[$key] = $this->adapter->read($i, $this->config);
+                $responses[$key] = $this->tryCall($method, $i, $this->config);
             }
             return $responses;
         }
     }
+
+    protected function tryCall($method, ...$args)
+    {
+        try{
+            return $this->adapter->$method(...$args);
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
+
+
     /**
      * @example $driver->write('example oid', 'value', 's');
      * @example $driver->write(['example oid' => ['type' => 's', 'value' => 1], ['oid' => 'example oid', 'type' => 's', 'value' => 1]]);
@@ -83,14 +119,14 @@ class Connection
     public function write($oidCommand, $type, $value)
     {
         if (!is_array($oidCommand)) {
-            $oid = $this->findAlias($oidCommand);
+            [$oid] = $this->findAlias($oidCommand);
             return $this->performWrite($oid, $type, $value);
         }
 
         $response = 0;
 
         foreach ($oidCommand as $key => $data) {
-            $oid = $this->findAlias($data['oid'] ?? $key);
+            [$oid] = $this->findAlias($data['oid'] ?? $key);
             // default type 's'
             $type = $data['type'] ?? 's';
 
@@ -122,7 +158,7 @@ class Connection
      */
     public function findAlias($oid)
     {
-        if(!preg_match('/[a-zA-Z]/', $oid)) return $oid;
+        if(!preg_match('/[a-zA-Z]/', $oid)) return [$oid, 'get'];
 
         $index = null;
         if (preg_match('/\{(.+)\}/', $oid, $matches)) {
@@ -133,23 +169,21 @@ class Connection
         $aliases = config('snmp.aliases');
         $alias = Arr::get($aliases, $oid);
 
-        if($alias == null){
-            throw new \Exception('Alias is not found.');
-        }
+        $method = 'get';
 
         if(preg_match('/\[]/', $alias, $matches)){
             $alias = str_replace($matches[0], '', $alias);
-            $this->config['getMethod'] = 'walk';
+            $method = 'walk';
 
         } else if(preg_match('/\[R]/', $alias, $matches)){
             $alias = str_replace($matches[0], '', $alias);
-            $this->config['getMethod'] = 'realwalk';
+            $method = 'realwalk';
         }
 
         if($index){
-            return preg_replace('/\{(.+)\}/', $index, $alias);
+            return [preg_replace('/\{(.+)\}/', $index, $alias), $method];
         }
-        return preg_replace('/\.{(.+)\}/', $index, $alias);
+        return [preg_replace('/\.{(.+)\}/', $index, $alias), $method];
 
         // future plan make $index support array.
     }
@@ -175,16 +209,24 @@ class Connection
         return $this;
     }
 
+    public static function fake()
+    {
+        static::$fake = true;
+    }
+
     public function setVersion($version)
     {
-        if ($version == 'v1') {
-            $this->adapter = new V1($this->host, $this->credentials);
+        if (static::$fake) {
+            return $this->adapter = new vTest($this->host, $this->credentials);
         }
-        if ($version == 'v2') {
-            $this->adapter = new V2($this->host, $this->credentials);
+        if ($version == 'v1') {
+            return $this->adapter = new V1($this->host, $this->credentials);
+        }
+        if ($version == 'v2' || $version == 'v2c') {
+            return $this->adapter = new V2($this->host, $this->credentials);
         }
         if ($version == 'v3') {
-            $this->adapter = new V3($this->host, $this->credentials);
+            return $this->adapter = new V3($this->host, $this->credentials);
         }
     }
 }

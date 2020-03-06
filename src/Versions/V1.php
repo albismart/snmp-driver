@@ -12,22 +12,32 @@ class V1
         $this->host = $host;
         $this->credentials = $credentials;
     }
-    public function read($oid, $config = [])
+
+    public function get($oid, $config = [])
     {
-        $getMethod = strtolower($config['getMethod']) ?? 'get';
         $credentials = is_array($this->credentials) ? $this->credentials['read'] : $this->credentials;
         $timeout = $config['timeout'];
         $retries = $config['retries'];
 
-        if ($getMethod == 'get') {
-            return snmpget($this->host, $credentials, $oid, $timeout, $retries);
-        }
-        if ($getMethod == 'walk') {
-            return snmpwalk($this->host, $credentials, $oid, $timeout, $retries);
-        }
-        if ($getMethod == 'realwalk') {
-            return snmprealwalk($this->host, $credentials, $oid, $timeout, $retries);
-        }
+        return snmpget($this->host, $credentials, $oid, $timeout, $retries);
+    }
+
+    public function walk($oid, $config = [])
+    {
+        $credentials = is_array($this->credentials) ? $this->credentials['read'] : $this->credentials;
+        $timeout = $config['timeout'];
+        $retries = $config['retries'];
+
+        return snmpwalk($this->host, $credentials, $oid, $timeout, $retries);
+    }
+
+    public function realwalk($oid, $config = [])
+    {
+        $credentials = is_array($this->credentials) ? $this->credentials['read'] : $this->credentials;
+        $timeout = $config['timeout'];
+        $retries = $config['retries'];
+
+        return snmprealwalk($this->host, $credentials, $oid, $timeout, $retries);
     }
 
     public function write($oid, $dataType, $value, $config = [])
