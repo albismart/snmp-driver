@@ -19,7 +19,7 @@ class vTest
         $timeout = $config['timeout'];
         $retries = $config['retries'];
 
-        return info("trying to get sum info", $this->host, $credentials, $oid, $timeout, $retries);
+        return info("snmpget", [$this->host, $credentials, $oid, $timeout, $retries]);
     }
 
     public function walk($oid, $config = [])
@@ -28,7 +28,7 @@ class vTest
         $timeout = $config['timeout'];
         $retries = $config['retries'];
 
-        return (array)info("trying to walk", $this->host, $credentials, $oid, $timeout, $retries);
+        return (array)info("snmpwalk", [$this->host, $credentials, $oid, $timeout, $retries]);
     }
 
     public function realwalk($oid, $config = [])
@@ -37,12 +37,12 @@ class vTest
         $timeout = $config['timeout'];
         $retries = $config['retries'];
 
-        return (array)info("trying to real walk", $this->host, $credentials, $oid, $timeout, $retries);
+        return (array)info("snmprealwalk", [$this->host, $credentials, $oid, $timeout, $retries]);
     }
 
     public function write($oid, $dataType, $value, $config = [])
     {
         $credentials = is_array($this->credentials) ? $this->credentials['write'] : $this->credentials;
-        return info("trying to set", $this->host, $credentials, $oid, $dataType, $value, $config['timeout'], $config['retries']);
+        return info("snmpset", [$this->host, $credentials, $oid, $dataType, $value, $config['timeout'], $config['retries']]);
     }
 }
