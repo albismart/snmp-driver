@@ -6,9 +6,8 @@ use Albismart\Versions\V1;
 use Albismart\Versions\V2;
 use Albismart\Versions\V3;
 use Illuminate\Support\Arr;
-use Albismart\Reader;
 
-class Connection implements Reader
+class Connection
 {
     public $host;
     public $credentials;
