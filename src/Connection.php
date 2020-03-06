@@ -169,10 +169,21 @@ class Connection
 
         $alias = Arr::get(static::$aliases, $oid);
 
-        if($index){
-            return preg_replace('/\{(.+)\}/', $index, $alias);
+        return $this->replaceIndex($alias, $index);
+    }
+
+    protected function replaceIndex($oid, $index = null)
+    {
+        if (is_array($oid)) {
+            foreach ($oid as $key => $id) {
+                $oid[$key] = $this->replaceIndex($id, $index);
+            }
+            return $oid;
         }
-        return preg_replace('/\.{(.+)\}/', $index, $alias);
+        if($index){
+            return preg_replace('/\{(.+)\}/', $index, $oid);
+        }
+        return preg_replace('/\.{(.+)\}/', $index, $oid);
     }
 
     protected function parseMethod($oid)
