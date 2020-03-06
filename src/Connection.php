@@ -6,6 +6,7 @@ use Albismart\Versions\V1;
 use Albismart\Versions\V2;
 use Albismart\Versions\V3;
 use Illuminate\Support\Arr;
+use Albismart\Versions\vTest;
 
 class Connection
 {
@@ -72,25 +73,25 @@ class Connection
         if (is_array($oid)) {
             $response = [];
             foreach ($oid as $key => $id) {
-                $response[$key] = $this->read($id);
+                $response[$key] = $this->call($id, $method);
             }
             return $response;
         }
         // find alias and replace
-        [$oid, $m] = $this->findAlias($oid);
-
-        $method = $method ?: $m;
+        $oid = $this->findAlias($oid);
 
         snmp_set_valueretrieval($this->config['readValueMethod']);
 
         if (is_string($oid)) {
-            return $this->tryCall($method, $oid, $this->config);
+            [$oid, $m] = $this->parseMethod($oid);
+            return $this->tryCall($method ?: $m, $oid, $this->config);
         }
 
         if (is_array($oid)) {
             $responses = [];
             foreach ($oid as $key => $i) {
-                $responses[$key] = $this->tryCall($method, $i, $this->config);
+                [$i, $m] = $this->parseMethod($i);
+                $responses[$key] = $this->tryCall($method ?: $m, $i, $this->config);
             }
             return $responses;
         }
@@ -118,14 +119,14 @@ class Connection
     public function write($oidCommand, $type, $value)
     {
         if (!is_array($oidCommand)) {
-            [$oid] = $this->findAlias($oidCommand);
+            $oid = $this->findAlias($oidCommand);
             return $this->performWrite($oid, $type, $value);
         }
 
         $response = 0;
 
         foreach ($oidCommand as $key => $data) {
-            [$oid] = $this->findAlias($data['oid'] ?? $key);
+            $oid = $this->findAlias($data['oid'] ?? $key);
             // default type 's'
             $type = $data['type'] ?? 's';
 
@@ -144,6 +145,7 @@ class Connection
         }
 
         foreach ($oid as $id) {
+            [$id] = $this->parseMethod($id);
             $this->adapter->write($id, $type, $value, $this->config);
         }
         return true;
@@ -157,7 +159,7 @@ class Connection
      */
     public function findAlias($oid)
     {
-        if(!preg_match('/[a-zA-Z]/', $oid)) return [$oid, 'get'];
+        if(!preg_match('/[a-zA-Z]/', $oid)) return $oid;
 
         $index = null;
         if (preg_match('/\{(.+)\}/', $oid, $matches)) {
@@ -165,26 +167,22 @@ class Connection
             $oid = str_replace($matches[0], '', $oid);
         }
 
-        $aliases = config('snmp.aliases');
-        $alias = Arr::get($aliases, $oid);
-
-        $method = 'get';
-
-        if(preg_match('/\[]/', $alias, $matches)){
-            $alias = str_replace($matches[0], '', $alias);
-            $method = 'walk';
-
-        } else if(preg_match('/\[R]/', $alias, $matches)){
-            $alias = str_replace($matches[0], '', $alias);
-            $method = 'realwalk';
-        }
+        $alias = Arr::get(static::$aliases, $oid);
 
         if($index){
-            return [preg_replace('/\{(.+)\}/', $index, $alias), $method];
+            return preg_replace('/\{(.+)\}/', $index, $alias);
         }
-        return [preg_replace('/\.{(.+)\}/', $index, $alias), $method];
+        return preg_replace('/\.{(.+)\}/', $index, $alias);
+    }
 
-        // future plan make $index support array.
+    protected function parseMethod($oid)
+    {
+        if(preg_match('/\[]/', $oid, $matches)){
+            return [str_replace($matches[0], '', $oid), 'walk'];
+        } elseif (preg_match('/\[R]/', $oid, $matches)){
+            return [str_replace($matches[0], '', $oid), 'realwalk'];
+        }
+        return [$oid, 'get'];
     }
 
     public static function useAliases(array $aliases)
