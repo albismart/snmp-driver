@@ -106,8 +106,6 @@ class Connection
         }
     }
 
-
-
     /**
      * @example $driver->write('example oid', 'value', 's');
      * @example $driver->write(['example oid' => ['type' => 's', 'value' => 1], ['oid' => 'example oid', 'type' => 's', 'value' => 1]]);
@@ -120,10 +118,9 @@ class Connection
     {
         if (!is_array($oidCommand)) {
             $oid = $this->findAlias($oidCommand);
-            return $this->performWrite($oid, $type, $value);
+            $this->performWrite($oid, $type, $value);
+            return $this;
         }
-
-        $response = 0;
 
         foreach ($oidCommand as $key => $data) {
             $oid = $this->findAlias($data['oid'] ?? $key);
@@ -132,10 +129,10 @@ class Connection
 
             $type = $data['value'] ?? $data;
 
-            $bool = $this->performWrite($oid, $type, $value);
-            if ($bool) $response++;
+            $this->performWrite($oid, $type, $value);
         }
-        return $response;
+
+        return $this;
     }
 
     protected function performWrite($oid, $type, $value)
@@ -162,7 +159,7 @@ class Connection
         if(!preg_match('/[a-zA-Z]/', $oid)) return $oid;
 
         $index = null;
-        if (preg_match('/\{(.+)\}/', $oid, $matches)) {
+        if (preg_match('/\.?\{(.+)\}/', $oid, $matches)) {
             $index = $matches[1];
             $oid = str_replace($matches[0], '', $oid);
         }
@@ -175,6 +172,7 @@ class Connection
     protected function replaceIndex($oid, $index = null)
     {
         if (is_array($oid)) {
+            $oid = Arr::dot($oid);
             foreach ($oid as $key => $id) {
                 $oid[$key] = $this->replaceIndex($id, $index);
             }
@@ -198,7 +196,7 @@ class Connection
 
     public static function useAliases(array $aliases)
     {
-        static::$aliases = array_merge_recursive(static::$aliases, $aliases);
+        static::$aliases = array_merge(static::$aliases, $aliases);
     }
 
     /**
@@ -213,7 +211,7 @@ class Connection
             unset($config['aliases']);
         }
 
-        $this->config = array_merge_recursive($this->config, $config);
+        $this->config = array_merge($this->config, $config);
         return $this;
     }
 
