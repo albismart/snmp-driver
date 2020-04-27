@@ -2,6 +2,8 @@
 
 namespace Albismart\Versions;
 
+use Illuminate\Support\Facades\Log;
+
 class vTest
 {
     public $host;
@@ -19,7 +21,7 @@ class vTest
         $timeout = $config['timeout'];
         $retries = $config['retries'];
 
-        return info("snmpget", [$this->host, $credentials, $oid, $timeout, $retries]);
+        return $this->log("snmpget", [$this->host, $credentials, $oid, $timeout, $retries]);
     }
 
     public function walk($oid, $config = [])
@@ -28,7 +30,7 @@ class vTest
         $timeout = $config['timeout'];
         $retries = $config['retries'];
 
-        return (array)info("snmpwalk", [$this->host, $credentials, $oid, $timeout, $retries]);
+        return (array)$this->log("snmpwalk", [$this->host, $credentials, $oid, $timeout, $retries]);
     }
 
     public function realwalk($oid, $config = [])
@@ -37,12 +39,21 @@ class vTest
         $timeout = $config['timeout'];
         $retries = $config['retries'];
 
-        return (array)info("snmprealwalk", [$this->host, $credentials, $oid, $timeout, $retries]);
+        return (array)$this->log("snmprealwalk", [$this->host, $credentials, $oid, $timeout, $retries]);
     }
 
     public function write($oid, $dataType, $value, $config = [])
     {
         $credentials = is_array($this->credentials) ? $this->credentials['write'] : $this->credentials;
-        return info("snmpset", [$this->host, $credentials, $oid, $dataType, $value, $config['timeout'], $config['retries']]);
+        return $this->log("snmpset", [$this->host, $credentials, $oid, $dataType, $value, $config['timeout'], $config['retries']]);
+    }
+
+    /**
+     * Logs the requests made.
+     * @return mixed
+     */
+    protected function info()
+    {
+        return Log::info(...func_get_args());
     }
 }

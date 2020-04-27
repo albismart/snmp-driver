@@ -22,7 +22,8 @@
     ],
     "require": {
         "php": "^7.2.5",
-        "laravel/framework": "~5.8.0|^6.0|^7.0"
+        "illuminate/config": "~5.8.0|^6.0|^7.0",
+        "illuminate/support": "~5.8.0|^6.0|^7.0"
     },
     "autoload": {
         "psr-4": {
@@ -33,7 +34,12 @@
         "laravel": {
             "providers": [
                 "Albismart\\SnmpServiceProvider"
-            ]
+            ],
+            "aliases": {
+                "Cmts": "Albismart\\Cmts",
+                "CableModem": "Albismart\\CableModem",
+                "Snmp": "Albismart\\Connection"
+            }
         }
     }
 }

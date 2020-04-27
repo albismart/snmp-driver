@@ -7,6 +7,7 @@ use Albismart\Versions\V2;
 use Albismart\Versions\V3;
 use Illuminate\Support\Arr;
 use Albismart\Versions\vTest;
+use Illuminate\Support\Facades\Config;
 
 class Connection
 {
@@ -38,8 +39,8 @@ class Connection
         }
         $this->credentials = $credentials;
         // set configuration.
-        $this->setConfig(app('config')->get('snmp'))->setConfig($config);
-        $this->setVersion($this->config['version']);
+        $this->setConfig(Config::get('snmp'))->setConfig($config);
+        $this->setVersion($this->config['version'] ?? 'v1');
     }
 
     public function read($oid)

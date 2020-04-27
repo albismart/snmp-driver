@@ -3,6 +3,7 @@
 namespace Albismart;
 
 use Albismart\Connection;
+use Illuminate\Support\Facades\Config;
 
 class Cmts
 {
@@ -13,7 +14,7 @@ class Cmts
 
     public static function connect($host, $credentials = [], $config = [])
     {
-        $cmtsConfig = app('config')->get("snmp.cmtses.$host");
+        $cmtsConfig = Config::get("snmp.cmtses.$host");
 
         if (null !== $cmtsConfig) {
             $host = $cmtsConfig['host'] ?? $host;

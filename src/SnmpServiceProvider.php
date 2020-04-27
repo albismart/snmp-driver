@@ -2,6 +2,7 @@
 
 namespace Albismart;
 
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 
 class SnmpServiceProvider extends ServiceProvider
@@ -25,6 +26,6 @@ class SnmpServiceProvider extends ServiceProvider
             __DIR__.'/../config/snmp.php', 'snmp'
         );
 
-        Connection::useAliases(app('config')->get('snmp.aliases'));
+        Connection::useAliases(Config::get('snmp.aliases'));
     }
 }
