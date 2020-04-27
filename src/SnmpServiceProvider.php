@@ -17,7 +17,7 @@ class SnmpServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__ . '/../config/snmp.php' => config_path('snmp.php')
+            __DIR__ . '/../config/snmp.php' => base_path('config/snmp.php')
         ], 'snmp-assets');
     }
 
@@ -27,7 +27,10 @@ class SnmpServiceProvider extends ServiceProvider
             __DIR__.'/../config/snmp.php', 'snmp'
         );
 
-        $this->app->alias(Connection::class, 'Snmp');
+        if (!class_exists('Snmp')) {
+            class_alias(Connection::class, 'Snmp');
+        }
+
         Connection::useAliases(Config::get('snmp.aliases'));
     }
 }
