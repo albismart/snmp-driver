@@ -52,7 +52,7 @@ class vTest
      * Logs the requests made.
      * @return mixed
      */
-    protected function info()
+    protected function log()
     {
         return Log::info(...func_get_args());
     }

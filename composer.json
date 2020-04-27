@@ -34,12 +34,7 @@
         "laravel": {
             "providers": [
                 "Albismart\\SnmpServiceProvider"
-            ],
-            "aliases": {
-                "Cmts": "Albismart\\Cmts",
-                "CableModem": "Albismart\\CableModem",
-                "Snmp": "Albismart\\Connection"
-            }
+            ]
         }
     }
 }
