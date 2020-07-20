@@ -13,10 +13,10 @@ In your laravel project directory, install the package using composer:
 
 ### Features
 
-- [ ] SNMP Read
-- [ ] SNMP Write
-- [ ] SNMP Version selection
-- [ ] Nested Readings
+- [x] SNMP Read
+- [x] SNMP Write
+- [x] SNMP Version selection
+- [x] Nested Readings
 
 ## Contributing
 

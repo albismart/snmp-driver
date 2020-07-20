@@ -23,7 +23,8 @@
     "require": {
         "php": "^7.2.5",
         "illuminate/config": "~5.8.0|^6.0|^7.0",
-        "illuminate/support": "~5.8.0|^6.0|^7.0"
+        "illuminate/support": "~5.8.0|^6.0|^7.0",
+      "ext-snmp": "*"
     },
     "autoload": {
         "psr-4": {

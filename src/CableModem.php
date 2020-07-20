@@ -1,6 +1,6 @@
 <?php
 
-namespace CableModem;
+namespace Albismart;
 
 class CableModem
 {

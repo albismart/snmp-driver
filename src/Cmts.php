@@ -16,7 +16,7 @@ class Cmts
     {
         $cmtsConfig = Config::get("snmp.cmtses.$host");
 
-        if (null !== $cmtsConfig) {
+        if ($cmtsConfig !== null) {
             $host = $cmtsConfig['host'] ?? $host;
             $credentials = $cmtsConfig['credentials'] ?? $credentials;
             unset($cmtsConfig['host'], $cmtsConfig['credentials']);
@@ -26,8 +26,37 @@ class Cmts
         return new static(new Connection($host, $credentials, $config));
 
     }
+
+    /**
+     * Cmts constructor.
+     * @param Connection $connection
+     */
     private function __construct($connection)
     {
         $this->connection = $connection;
+    }
+
+    /**
+     * @param $method
+     * @param $parameters
+     * @return mixed
+     */
+    protected function __call($method, $parameters)
+    {
+        if (method_exists($this->connection, $method)) {
+            return $this->connection->{$method}(...$parameters);
+        }
+
+        throw new \BadMethodCallException(sprintf(
+            'Call to undefined method %s::%s()', static::class, $method
+        ));
+    }
+
+    /**
+     * @return array
+     */
+    public function __debugInfo()
+    {
+        return $this->connection->__debugInfo();
     }
 }
